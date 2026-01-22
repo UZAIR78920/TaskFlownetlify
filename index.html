@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Project Management Platform</title>
+    <link rel="stylesheet" href="taskflow.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Onboarding Overlay (shown on first visit) -->
+    <div id="onboarding-overlay" class="onboarding-overlay hidden">
+        <div class="onboarding-content">
+            <div class="onboarding-header">
+                <h2>Welcome to TaskFlow!</h2>
+                <button class="close-onboarding" data-testid="close-onboarding-btn">×</button>
+            </div>
+            <div class="onboarding-body">
+                <div class="onboarding-step active" data-step="1">
+                    <div class="step-icon">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                            <circle cx="32" cy="32" r="28" fill="#E3F2FD"/>
+                            <path d="M32 16V32L40 40" stroke="#1976D2" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3>Choose Your Experience</h3>
+                    <p>TaskFlow adapts to your skill level. Switch between Beginner and Professional modes anytime.</p>
+                </div>
+                <div class="onboarding-step" data-step="2">
+                    <div class="step-icon">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                            <rect x="12" y="12" width="40" height="40" rx="4" fill="#E3F2FD"/>
+                            <rect x="18" y="20" width="12" height="8" rx="2" fill="#1976D2"/>
+                            <rect x="34" y="20" width="12" height="8" rx="2" fill="#1976D2"/>
+                            <rect x="18" y="32" width="28" height="8" rx="2" fill="#1976D2"/>
+                        </svg>
+                    </div>
+                    <h3>Organize with Kanban</h3>
+                    <p>Drag and drop tasks across boards. Visualize your workflow from backlog to completion.</p>
+                </div>
+                <div class="onboarding-step" data-step="3">
+                    <div class="step-icon">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                            <circle cx="24" cy="24" r="8" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/>
+                            <circle cx="40" cy="24" r="8" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/>
+                            <circle cx="32" cy="40" r="8" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Collaborate with Your Team</h3>
+                    <p>Real-time chat, file sharing, and task assignments. Keep everyone in sync.</p>
+                </div>
+            </div>
+            <div class="onboarding-footer">
+                <div class="step-indicators">
+                    <span class="step-dot active" data-dot="1"></span>
+                    <span class="step-dot" data-dot="2"></span>
+                    <span class="step-dot" data-dot="3"></span>
+                </div>
+                <div class="onboarding-actions">
+                    <button class="btn-secondary prev-step" data-testid="prev-step-btn">Previous</button>
+                    <button class="btn-primary next-step" data-testid="next-step-btn">Next</button>
+                    <button class="btn-primary finish-onboarding hidden" data-testid="finish-onboarding-btn">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav" data-testid="top-nav">
+        <div class="nav-left">
+            <button class="menu-toggle" data-testid="menu-toggle-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="6" fill="#1976D2"/>
+                    <path d="M8 16L14 22L24 10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">TaskFlow</span>
+            </div>
+        </div>
+        
+        <div class="nav-center">
+            <div class="search-bar" data-testid="search-bar">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="2"/>
+                    <path d="M14 14L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="text" placeholder="Search tasks, projects, team members..." data-testid="search-input">
+            </div>
+        </div>
+        
+        <div class="nav-right">
+            <div class="mode-toggle" data-testid="mode-toggle">
+                <button class="mode-btn" data-mode="beginner" data-testid="mode-beginner-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2"/>
+                        <path d="M10 7V10L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Beginner</span>
+                </button>
+                <button class="mode-btn active" data-mode="professional" data-testid="mode-pro-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M2 10L8 16L18 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Pro</span>
+                </button>
+            </div>
+            
+            <button class="theme-toggle" data-testid="theme-toggle-btn">
+                <svg class="theme-icon sun-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="4" fill="currentColor"/>
+                    <path d="M10 2V4M10 16V18M18 10H16M4 10H2M15.5 4.5L14 6M6 14L4.5 15.5M15.5 15.5L14 14M6 6L4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg class="theme-icon moon-icon hidden" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M17 11C16 14 13 16 10 16C6 16 3 13 3 9C3 6 5 3 8 2C7 3 7 5 7 6C7 9 9 11 12 11C14 11 15 11 17 11Z" fill="currentColor"/>
+                </svg>
+            </button>
+            
+            <div class="notifications-container">
+                <button class="notifications-btn" data-testid="notifications-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2C7.8 2 6 3.8 6 6V10L4 12V14H16V12L14 10V6C14 3.8 12.2 2 10 2Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 14V15C8 16.1 8.9 17 10 17C11.1 17 12 16.1 12 15V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="notification-badge" data-testid="notification-badge">3</span>
+                </button>
+                <div class="notifications-dropdown hidden" data-testid="notifications-dropdown">
+                    <div class="notifications-header">
+                        <h3>Notifications</h3>
+                        <button class="mark-all-read" data-testid="mark-all-read-btn">Mark all as read</button>
+                    </div>
+                    <div class="notifications-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-menu-container">
+                <button class="user-avatar" data-testid="user-avatar-btn">
+                    <span class="avatar-initials">JD</span>
+                </button>
+                <div class="user-dropdown hidden" data-testid="user-dropdown">
+                    <div class="user-info">
+                        <div class="user-avatar-large">JD</div>
+                        <div class="user-details">
+                            <div class="user-name">John Doe</div>
+                            <div class="user-email">john.doe@taskflow.com</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" data-action="profile" data-testid="profile-link">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M2 14C2 11 4.5 9 8 9C11.5 9 14 11 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Profile
+                    </a>
+                    <a href="#" class="dropdown-item" data-action="settings" data-testid="settings-link">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M8 1V3M8 13V15M15 8H13M3 8H1M13 3L11.5 4.5M4.5 11.5L3 13M13 13L11.5 11.5M4.5 4.5L3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" data-action="logout" data-testid="logout-link">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M6 14H3C2.4 14 2 13.6 2 13V3C2 2.4 2.4 2 3 2H6M11 11L14 8L11 5M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" data-testid="sidebar">
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-view="dashboard" data-testid="nav-dashboard">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>Dashboard</span>
+                <span class="tooltip">Overview of all your projects and tasks</span>
+            </a>
+            
+            <a href="#" class="nav-item" data-view="projects" data-testid="nav-projects">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M7 4V2M13 4V2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M3 8H17" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>Projects</span>
+                <span class="tooltip">Manage all your projects</span>
+            </a>
+            
+            <a href="#" class="nav-item" data-view="team" data-testid="nav-team">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="7" cy="6" r="3" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="13" cy="6" r="3" stroke="currentColor" stroke-width="2"/>
+                    <path d="M2 16C2 13.5 4 12 7 12C10 12 12 13.5 12 16M8 16C8 13.5 10 12 13 12C16 12 18 13.5 18 16" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>Team</span>
+                <span class="tooltip">View team members and their workload</span>
+            </a>
+            
+            <a href="#" class="nav-item" data-view="sprints" data-testid="nav-sprints">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 10L8 15L17 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2"/>
+                </svg>
+                <span>Sprints</span>
+                <span class="tooltip">Sprint = Time-boxed iteration (usually 2 weeks)</span>
+            </a>
+            
+            <a href="#" class="nav-item" data-view="analytics" data-testid="nav-analytics">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 15V18M10 10V18M17 3V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="3" cy="15" r="2" fill="currentColor"/>
+                    <circle cx="10" cy="10" r="2" fill="currentColor"/>
+                    <circle cx="17" cy="3" r="2" fill="currentColor"/>
+                </svg>
+                <span>Analytics</span>
+                <span class="tooltip">Track project progress with charts and metrics</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <div class="nav-section-title">Favorites</div>
+            <a href="#" class="nav-item nav-item-small" data-project-id="1" data-testid="nav-favorite-1">
+                <div class="project-color" style="background: #1976D2;"></div>
+                <span>Website Redesign</span>
+            </a>
+            <a href="#" class="nav-item nav-item-small" data-project-id="2" data-testid="nav-favorite-2">
+                <div class="project-color" style="background: #388E3C;"></div>
+                <span>Mobile App v2.0</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="upgrade-card" data-testid="upgrade-card">
+                <div class="upgrade-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L15 8L22 9L17 14L18 21L12 18L6 21L7 14L2 9L9 8L12 2Z" fill="#FFB300"/>
+                    </svg>
+                </div>
+                <div class="upgrade-text">
+                    <strong>Free Plan</strong>
+                    <p>1 project limit reached</p>
+                </div>
+                <button class="btn-upgrade" data-testid="upgrade-btn">Upgrade</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content" data-testid="main-content">
+        <!-- Global Dashboard View -->
+        <div id="dashboard-view" class="view active">
+            <div class="view-header">
+                <div class="view-title">
+                    <h1 data-testid="dashboard-title">Dashboard</h1>
+                    <p class="view-subtitle">Welcome back, John! Here's what's happening today.</p>
+                </div>
+                <div class="view-actions">
+                    <button class="btn-secondary" data-testid="refresh-btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M14 8C14 11.3 11.3 14 8 14C4.7 14 2 11.3 2 8C2 4.7 4.7 2 8 2C10 2 11.8 3 12.9 4.5M13 2V5H10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="btn-primary" data-testid="new-project-btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        New Project
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-stats" data-testid="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #E3F2FD;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="5" width="16" height="14" rx="2" stroke="#1976D2" stroke-width="2"/>
+                            <path d="M4 9H20" stroke="#1976D2" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="stat-projects">5</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #E8F5E9;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 13L9 17L19 7" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="stat-completed">24</div>
+                        <div class="stat-label">Tasks Completed</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #FFF3E0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="8" stroke="#F57C00" stroke-width="2"/>
+                            <path d="M12 8V12L14 14" stroke="#F57C00" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="stat-pending">12</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #FCE4EC;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 8V12M12 16H12.01" stroke="#C2185B" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 2L21 8V16L12 22L3 16V8L12 2Z" stroke="#C2185B" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="stat-overdue">3</div>
+                        <div class="stat-label">Overdue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-panel projects-panel" data-testid="projects-panel">
+                    <div class="panel-header">
+                        <h2>My Projects</h2>
+                        <button class="btn-text" data-testid="view-all-projects-btn">View All →</button>
+                    </div>
+                    <div class="projects-list" id="projects-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="dashboard-panel tasks-panel" data-testid="tasks-panel">
+                    <div class="panel-header">
+                        <h2>My Tasks</h2>
+                        <div class="panel-filters">
+                            <button class="filter-btn active" data-filter="all" data-testid="filter-all-btn">All</button>
+                            <button class="filter-btn" data-filter="today" data-testid="filter-today-btn">Today</button>
+                            <button class="filter-btn" data-filter="week" data-testid="filter-week-btn">This Week</button>
+                        </div>
+                    </div>
+                    <div class="tasks-list" id="my-tasks-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="dashboard-panel activity-panel" data-testid="activity-panel">
+                    <div class="panel-header">
+                        <h2>Recent Activity</h2>
+                    </div>
+                    <div class="activity-timeline" id="activity-timeline">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="dashboard-panel sprint-panel" data-testid="sprint-panel">
+                    <div class="panel-header">
+                        <h2>Active Sprints</h2>
+                    </div>
+                    <div class="sprints-list" id="sprints-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Dashboard View -->
+        <div id="project-view" class="view">
+            <div class="view-header">
+                <div class="view-title">
+                    <div class="project-header-main">
+                        <div class="project-color-indicator" id="current-project-color"></div>
+                        <div>
+                            <h1 id="current-project-name" data-testid="project-name">Website Redesign</h1>
+                            <p class="view-subtitle" id="current-project-description">Modernize company website with new branding</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="view-actions">
+                    <button class="btn-secondary" data-testid="project-settings-btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M8 1V3M8 13V15M15 8H13M3 8H1M13 3L11.5 4.5M4.5 11.5L3 13M13 13L11.5 11.5M4.5 4.5L3 3" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        Settings
+                    </button>
+                    <button class="btn-primary" data-testid="add-task-btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Add Task
+                    </button>
+                </div>
+            </div>
+
+            <div class="project-tabs" data-testid="project-tabs">
+                <button class="tab-btn active" data-tab="kanban" data-testid="tab-kanban-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <rect x="2" y="2" width="5" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="9" y="2" width="5" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Kanban Board
+                </button>
+                <button class="tab-btn" data-tab="sprint" data-testid="tab-sprint-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M8 5V8L10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Sprint
+                </button>
+                <button class="tab-btn" data-tab="team" data-testid="tab-team-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="6" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="11" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M2 13C2 11 4 10 6 10C8 10 10 11 10 13M6 13C6 11 8 10 11 10C13 10 14 11 14 13" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Team
+                </button>
+                <button class="tab-btn" data-tab="files" data-testid="tab-files-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M9 2H4C3.4 2 3 2.4 3 3V13C3 13.6 3.4 14 4 14H12C12.6 14 13 13.6 13 13V6L9 2Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9 2V6H13" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Files
+                </button>
+                <button class="tab-btn" data-tab="chat" data-testid="tab-chat-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14 10C14 10.6 13.6 11 13 11H4L2 13V3C2 2.4 2.4 2 3 2H13C13.6 2 14 2.4 14 3V10Z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Chat
+                </button>
+                <button class="tab-btn" data-tab="timeline" data-testid="tab-timeline-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="4" cy="4" r="2" fill="currentColor"/>
+                        <circle cx="12" cy="8" r="2" fill="currentColor"/>
+                        <circle cx="4" cy="12" r="2" fill="currentColor"/>
+                        <path d="M4 6V10" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M6 4H10M6 12H10" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Timeline
+                </button>
+                <button class="tab-btn" data-tab="analytics" data-testid="tab-analytics-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 12V14M8 8V14M14 4V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Analytics
+                </button>
+            </div>
+
+            <!-- Kanban Board Tab -->
+            <div class="tab-content active" data-tab-content="kanban">
+                <div class="kanban-board" data-testid="kanban-board" id="kanban-board">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Sprint Tab -->
+            <div class="tab-content" data-tab-content="sprint">
+                <div class="sprint-container" data-testid="sprint-container">
+                    <div class="sprint-header">
+                        <div class="sprint-info">
+                            <h2>Sprint 3 - Q1 Goals</h2>
+                            <div class="sprint-meta">
+                                <span class="sprint-dates">Jan 15 - Jan 29, 2025</span>
+                                <span class="sprint-status status-active">Active</span>
+                            </div>
+                        </div>
+                        <div class="sprint-actions">
+                            <button class="btn-secondary" data-testid="compare-sprints-btn">Compare Sprints</button>
+                            <button class="btn-primary" data-testid="new-sprint-btn">New Sprint</button>
+                        </div>
+                    </div>
+                    
+                    <div class="sprint-progress-section">
+                        <div class="sprint-progress-card">
+                            <div class="progress-header">
+                                <h3>Sprint Progress</h3>
+                                <span class="progress-percentage">65%</span>
+                            </div>
+                            <div class="progress-bar-large">
+                                <div class="progress-fill" style="width: 65%; background: linear-gradient(90deg, #1976D2, #42A5F5);"></div>
+                            </div>
+                            <div class="progress-stats">
+                                <div class="progress-stat">
+                                    <span class="stat-label">Completed</span>
+                                    <span class="stat-value">13/20</span>
+                                </div>
+                                <div class="progress-stat">
+                                    <span class="stat-label">In Progress</span>
+                                    <span class="stat-value">5</span>
+                                </div>
+                                <div class="progress-stat">
+                                    <span class="stat-label">To Do</span>
+                                    <span class="stat-value">2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sprint-tasks-list" id="sprint-tasks-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Tab -->
+            <div class="tab-content" data-tab-content="team">
+                <div class="team-container" data-testid="team-container">
+                    <div class="team-header">
+                        <h2>Team Members</h2>
+                        <button class="btn-primary" data-testid="invite-member-btn">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Invite Member
+                        </button>
+                    </div>
+                    
+                    <div class="team-grid" id="team-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files Tab -->
+            <div class="tab-content" data-tab-content="files">
+                <div class="files-container" data-testid="files-container">
+                    <div class="files-header">
+                        <h2>Project Files</h2>
+                        <button class="btn-primary" data-testid="upload-file-btn">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 11V3M8 3L5 6M8 3L11 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M2 11V13C2 13.6 2.4 14 3 14H13C13.6 14 14 13.6 14 13V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Upload File
+                        </button>
+                    </div>
+                    
+                    <div class="files-list" id="files-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Tab -->
+            <div class="tab-content" data-tab-content="chat">
+                <div class="chat-container" data-testid="chat-container">
+                    <div class="chat-messages" id="project-chat-messages">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="chat-input-container">
+                        <button class="chat-attach-btn" data-testid="chat-attach-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 3L6 7M10 3L14 7M10 3V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M4 12V15C4 15.6 4.4 16 5 16H15C15.6 16 16 15.6 16 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        <input type="text" class="chat-input" placeholder="Type a message..." data-testid="chat-input">
+                        <button class="chat-send-btn" data-testid="chat-send-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M18 2L9 11M18 2L12 18L9 11M18 2L2 8L9 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Tab -->
+            <div class="tab-content" data-tab-content="timeline">
+                <div class="timeline-container" data-testid="timeline-container">
+                    <h2>Project Timeline</h2>
+                    <div class="timeline-view" id="project-timeline">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-content" data-tab-content="analytics">
+                <div class="analytics-container" data-testid="analytics-container">
+                    <h2>Project Analytics</h2>
+                    <div class="analytics-grid">
+                        <div class="chart-card" data-testid="velocity-chart">
+                            <h3>Team Velocity</h3>
+                            <div class="chart-placeholder">
+                                <canvas id="velocity-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card" data-testid="burndown-chart">
+                            <h3>Sprint Burndown</h3>
+                            <div class="chart-placeholder">
+                                <canvas id="burndown-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card" data-testid="task-distribution-chart">
+                            <h3>Task Distribution</h3>
+                            <div class="chart-placeholder">
+                                <canvas id="task-distribution-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card" data-testid="git-activity-chart">
+                            <h3>Git Activity</h3>
+                            <div class="chart-placeholder">
+                                <canvas id="git-activity-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Dashboard View -->
+        <div id="team-view" class="view">
+            <div class="view-header">
+                <div class="view-title">
+                    <h1 data-testid="team-view-title">Team Dashboard</h1>
+                    <p class="view-subtitle">Manage team members, roles, and workload</p>
+                </div>
+                <div class="view-actions">
+                    <button class="btn-secondary" data-testid="export-team-btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 3V11M8 11L5 8M8 11L11 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M2 11V13C2 13.6 2.4 14 3 14H13C13.6 14 14 13.6 14 13V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Export
+                    </button>
+                    <button class="btn-primary" data-testid="add-member-btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Add Member
+                    </button>
+                </div>
+            </div>
+
+            <div class="team-stats-grid">
+                <div class="team-stat-card">
+                    <div class="stat-icon" style="background: #E3F2FD;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="9" cy="7" r="4" stroke="#1976D2" stroke-width="2"/>
+                            <circle cx="15" cy="7" r="4" stroke="#1976D2" stroke-width="2"/>
+                            <path d="M3 19C3 16 5.5 14 9 14C12.5 14 15 16 15 19M9 19C9 16 11.5 14 15 14C18.5 14 21 16 21 19" stroke="#1976D2" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="total-members">12</div>
+                        <div class="stat-label">Team Members</div>
+                    </div>
+                </div>
+                
+                <div class="team-stat-card">
+                    <div class="stat-icon" style="background: #E8F5E9;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="#388E3C" stroke-width="2"/>
+                            <path d="M12 6V12L16 14" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="avg-workload">76%</div>
+                        <div class="stat-label">Avg. Workload</div>
+                    </div>
+                </div>
+                
+                <div class="team-stat-card">
+                    <div class="stat-icon" style="background: #FFF3E0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 13L10 17L18 9" stroke="#F57C00" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="tasks-completed-team">145</div>
+                        <div class="stat-label">Tasks Completed</div>
+                    </div>
+                </div>
+                
+                <div class="team-stat-card">
+                    <div class="stat-icon" style="background: #F3E5F5;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L15 8L22 9L17 14L18 21L12 18L6 21L7 14L2 9L9 8L12 2Z" fill="#7B1FA2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" data-testid="team-leads">3</div>
+                        <div class="stat-label">Team Leads</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-members-section">
+                <div class="section-header">
+                    <h2>Team Members</h2>
+                    <div class="section-filters">
+                        <select class="filter-select" data-testid="role-filter">
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="lead">Team Lead</option>
+                            <option value="developer">Developer</option>
+                            <option value="designer">Designer</option>
+                        </select>
+                        <select class="filter-select" data-testid="workload-filter">
+                            <option value="all">All Workload</option>
+                            <option value="high">High (>80%)</option>
+                            <option value="medium">Medium (50-80%)</option>
+                            <option value="low">Low (<50%)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="team-members-table" id="team-members-table" data-testid="team-members-table">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="workload-distribution-section">
+                <h2>Workload Distribution</h2>
+                <div class="chart-card-large">
+                    <canvas id="workload-chart" data-testid="workload-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Detail View (Modal-like) -->
+        <div id="task-detail-view" class="view task-detail-modal hidden" data-testid="task-detail-modal">
+            <div class="task-detail-container">
+                <div class="task-detail-header">
+                    <div class="task-detail-title">
+                        <h2 id="task-detail-name">Task Title</h2>
+                        <button class="close-task-detail" data-testid="close-task-detail-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="task-detail-meta">
+                        <span class="task-status" id="task-detail-status">In Progress</span>
+                        <span class="task-priority" id="task-detail-priority">High</span>
+                    </div>
+                </div>
+                
+                <div class="task-detail-body">
+                    <div class="task-detail-main">
+                        <div class="task-section">
+                            <h3>Description</h3>
+                            <p id="task-detail-description">Task description goes here</p>
+                        </div>
+                        
+                        <div class="task-section">
+                            <h3>Subtasks</h3>
+                            <div class="subtasks-list" id="task-subtasks-list">
+                                <!-- Populated by JS -->
+                            </div>
+                            <button class="btn-text" data-testid="add-subtask-btn">+ Add Subtask</button>
+                        </div>
+                        
+                        <div class="task-section">
+                            <h3>Attachments</h3>
+                            <div class="attachments-list" id="task-attachments-list">
+                                <!-- Populated by JS -->
+                            </div>
+                            <button class="btn-text" data-testid="add-attachment-btn">+ Add Attachment</button>
+                        </div>
+                        
+                        <div class="task-section">
+                            <h3>Activity</h3>
+                            <div class="task-activity-list" id="task-activity-list">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="task-detail-sidebar">
+                        <div class="task-info-section">
+                            <h4>Assignee</h4>
+                            <div class="task-assignee" id="task-detail-assignee">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        
+                        <div class="task-info-section">
+                            <h4>Due Date</h4>
+                            <div class="task-due-date" id="task-detail-due-date">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        
+                        <div class="task-info-section">
+                            <h4>Project</h4>
+                            <div class="task-project" id="task-detail-project">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        
+                        <div class="task-info-section">
+                            <h4>Labels</h4>
+                            <div class="task-labels" id="task-detail-labels">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        
+                        <div class="task-chat-section">
+                            <h4>Comments</h4>
+                            <div class="task-chat-messages" id="task-chat-messages">
+                                <!-- Populated by JS -->
+                            </div>
+                            <div class="task-chat-input">
+                                <input type="text" placeholder="Add a comment..." data-testid="task-comment-input">
+                                <button data-testid="task-comment-send-btn">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M15 1L7 9M15 1L10 15L7 9M15 1L1 6L7 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Upgrade Modal -->
+    <div id="upgrade-modal" class="modal hidden" data-testid="upgrade-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Upgrade Your Plan</h2>
+                <button class="modal-close" data-testid="close-upgrade-modal-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Free</h3>
+                            <div class="pricing-price">
+                                <span class="price-currency">$</span>
+                                <span class="price-amount">0</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-features">
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>1 Project</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Up to 5 Team Members</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Basic Kanban Board</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>1 GB Storage</span>
+                            </div>
+                        </div>
+                        <button class="btn-secondary btn-full" data-testid="select-free-plan-btn">Current Plan</button>
+                    </div>
+                    
+                    <div class="pricing-card pricing-card-featured">
+                        <div class="pricing-badge">Most Popular</div>
+                        <div class="pricing-header">
+                            <h3>Professional</h3>
+                            <div class="pricing-price">
+                                <span class="price-currency">$</span>
+                                <span class="price-amount">19</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-features">
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Unlimited Projects</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Unlimited Team Members</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Advanced Analytics</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>100 GB Storage</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Priority Support</span>
+                            </div>
+                        </div>
+                        <button class="btn-primary btn-full" data-testid="select-pro-plan-btn">Upgrade Now</button>
+                    </div>
+                    
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Enterprise</h3>
+                            <div class="pricing-price">
+                                <span class="price-currency">$</span>
+                                <span class="price-amount">49</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-features">
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Everything in Pro</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Custom Integrations</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Dedicated Support</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Unlimited Storage</span>
+                            </div>
+                            <div class="feature-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8L6 11L13 4" stroke="#388E3C" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>SLA Guarantee</span>
+                            </div>
+                        </div>
+                        <button class="btn-secondary btn-full" data-testid="select-enterprise-plan-btn">Contact Sales</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="taskflow.js"></script>
+</body>
+</html>
